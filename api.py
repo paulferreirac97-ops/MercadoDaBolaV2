@@ -17,14 +17,15 @@ def obter_transferencias():
         )
         cursor = conexao.cursor(dictionary=True)
         
-        # Filtro exclusivo para o 365Scores
+        # Filtro exclusivo para o 365Scores com os ALIAS corrigidos para o JavaScript
         query = """
             SELECT 
-                j.nome AS Jogador, 
+                j.nome AS nome_jogador, 
                 j.foto_url,
-                c.nome AS Clube, 
+                c.nome AS nome_clube, 
                 c.escudo_url,
-                n.status AS Status, 
+                n.status AS status, 
+                n.fonte_nome AS fonte_nome,
                 n.data_publicacao AS Data
             FROM negociacoes n
             JOIN jogadores j ON n.jogador_id = j.id
