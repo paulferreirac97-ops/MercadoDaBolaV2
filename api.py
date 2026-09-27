@@ -8,16 +8,17 @@ CORS(app)
 @app.route('/api/transferencias', methods=['GET'])
 def obter_transferencias():
     try:
+        # Tentativa de conexão isolada com timeout explícito
         conexao = mysql.connector.connect(
             host='mysql-150d98e8-versao01.e.aivencloud.com',
             port=10256,
             user='avnadmin',
             password='AVNS_Kf6_PfesQM62x0b-wyy',
-            database='defaultdb'
+            database='defaultdb',
+            connection_timeout=5
         )
         cursor = conexao.cursor(dictionary=True)
         
-        # Query limpa, sem o WHERE, para trazer todos os dados
         query = """
             SELECT 
                 j.nome AS nome_jogador, 
@@ -31,17 +32,22 @@ def obter_transferencias():
             JOIN jogadores j ON n.jogador_id = j.id
             JOIN clubes c ON n.clube_interessado_id = c.id
             ORDER BY n.data_publicacao DESC
+            LIMIT 50
         """
         cursor.execute(query)
         dados = cursor.fetchall()
         
         cursor.close()
         conexao.close()
-        return jsonify(dados)
+        return jsonify(dados), 200
         
     except Exception as e:
-        # Garante que mesmo em erro, a API tenta responder em JSON
-        return jsonify({"erro": str(e)}), 500
+        # Se falhar, retorna o erro exato em JSON para vermos no browser
+        return jsonify({"status": "erro", "detalhe": str(e)}), 500
+
+@app.route('/', methods=['GET'])
+def home():
+    return jsonify({"status": "API Online e Operacional!"}), 200
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)
