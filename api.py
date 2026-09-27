@@ -4,7 +4,7 @@ import mysql.connector
 import os
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 def conectar_banco():
     return mysql.connector.connect(
@@ -13,7 +13,7 @@ def conectar_banco():
         user='avnadmin', 
         password='AVNS_Kf6_PfesQM62x0b-wyy', 
         database='defaultdb',
-        connect_timeout=10 # Evita travamento infinito
+        connect_timeout=5
     )
 
 @app.route('/')
@@ -28,7 +28,7 @@ def listar_transferencias():
         conexao = conectar_banco()
         cursor = conexao.cursor(dictionary=True)
         
-        # Consulta otimizada limitando aos 50 registros mais recentes para evitar timeout
+        # Consulta ultra-rápida trazendo apenas os campos essenciais com limite seguro
         query = """
             SELECT 
                 j.nome AS nome_jogador,
@@ -44,7 +44,7 @@ def listar_transferencias():
             JOIN jogadores j ON n.jogador_id = j.id
             JOIN clubes c ON n.clube_interessado_id = c.id
             ORDER BY n.id DESC
-            LIMIT 50;
+            LIMIT 20;
         """
         cursor.execute(query)
         resultados = cursor.fetchall()
