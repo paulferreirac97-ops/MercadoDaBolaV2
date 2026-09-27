@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mercado da Bola</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <header class="cabecalho">
@@ -13,29 +13,14 @@
     </header>
 
     <main class="container">
-        <!-- É dentro desta div que o nosso JavaScript vai injetar os cards do banco de dados -->
+        <!-- O JavaScript vai injetar os cards dinâmicos do banco aqui -->
         <div id="grid-transferencias" class="grid-cards">
-            
-            <!-- Exemplo estático de como o card vai ficar (apagaremos depois) -->
-            <div class="card">
-                <div class="card-jogador">
-                    <img src="https://ui-avatars.com/api/?name=Jogador+Exemplo&background=2b2b2b&color=ffffff" alt="Foto do Jogador">
-                    <h3>Nome do Atleta</h3>
-                </div>
-                <div class="card-status">
-                    <span class="badge badge-fechado">FECHADO</span>
-                    <small>Fonte: GE</small>
-                </div>
-                <div class="card-clube">
-                    <img src="https://ui-avatars.com/api/?name=Clube+Exemplo&background=2b2b2b&color=ffffff" alt="Escudo do Clube">
-                    <h3>Nome do Clube</h3>
-                </div>
+            <div style="text-align: center; color: #94a3b8; padding: 40px; grid-column: 1 / -1;">
+                A carregar transferências...
             </div>
-
         </div>
     </main>
 
-    <!-- Tag adicionada para chamar a lógica em JavaScript -->
-    <script src="app.js"></script>
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>
