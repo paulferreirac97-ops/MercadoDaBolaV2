@@ -1,38 +1,58 @@
-PS C:\Users\PAULO TI\Desktop\MercadoDaBolaV2> git push
-Enumerating objects: 13, done.
-Counting objects: 100% (13/13), done.
-Delta compression using up to 12 threads
-Compressing objects: 100% (9/9), done.
-Writing objects: 100% (9/9), 7.00 KiB | 1.75 MiB/s, done.
-Total 9 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)
-remote: error: GH013: Repository rule violations found for refs/heads/main.
-remote: 
-remote: - GITHUB PUSH PROTECTION
-remote:   —————————————————————————————————————————
-remote:     Resolve the following violations before pushing again
-remote: 
-remote:     - Push cannot contain secrets
-remote: 
-remote:     
-remote:      (?) Learn how to resolve a blocked push
-remote:      https://docs.github.com/code-security/secret-scanning/working-with-secret-scanning-and-push-protection/working-with-push-protection-from-the-command-line#resolving-a-blocked-push
-remote:     
-remote:     
-remote:       —— Aiven Service Password ————————————————————————————
-remote:        locations:
-remote:          - commit: cc03c0298e28796c9197e8a56d7cc1f3d749341c
-remote:            path: api.py:14
-remote:          - commit: cc03c0298e28796c9197e8a56d7cc1f3d749341c
-remote:            path: coletor_tm_tabelas.py:13
-remote:          - commit: cc03c0298e28796c9197e8a56d7cc1f3d749341c
-remote:            path: resetar_banco.py:11
-remote:     
-remote:        (?) To push, remove secret from commit(s) or follow this URL to allow the secret.
-remote:        https://github.com/paulferreirac97-ops/MercadoDaBolaV2/security/secret-scanning/unblock-secret/3JvHuRuperbZF2hhwENr3skRCTh
-remote:     
-remote: 
-remote: 
-To https://github.com/paulferreirac97-ops/MercadoDaBolaV2.git
- ! [remote rejected] main -> main (push declined due to repository rule violations)
-error: failed to push some refs to 'https://github.com/paulferreirac97-ops/MercadoDaBolaV2.git'
-PS C:\Users\PAULO TI\Desktop\MercadoDaBolaV2> 
+import os
+from flask import Flask, render_template, jsonify
+from flask_cors import CORS
+import mysql.connector
+
+app = Flask(__name__, template_folder='templates', static_folder='static')
+CORS(app)
+
+def conectar_banco():
+    return mysql.connector.connect(
+        host=os.environ.get('DB_HOST', 'mysql-150d98e8-versao01.e.aivencloud.com'),
+        port=int(os.environ.get('DB_PORT', 10256)),
+        user=os.environ.get('DB_USER', 'avnadmin'),
+        password=os.environ.get('DB_PASSWORD'),
+        database=os.environ.get('DB_NAME', 'defaultdb')
+    )
+
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+@app.route('/api/transferencias', methods=['GET'])
+def get_transferencias():
+    try:
+        conn = conectar_banco()
+        cursor = conn.cursor(dictionary=True)
+        
+        query = """
+            SELECT 
+                j.nome AS Jogador, 
+                coalesce(c_origem.nome, 'Sem Clube') AS Origem, 
+                c_destino.nome AS Destino, 
+                n.valor AS Valor, 
+                n.status AS Status, 
+                n.data_publicacao AS Data,
+                n.fonte_nome AS Fonte
+            FROM negociacoes n
+            JOIN jogadores j ON n.jogador_id = j.id
+            JOIN clubes c_destino ON n.clube_interessado_id = c_destino.id
+            LEFT JOIN clubes c_origem ON n.clube_origem_id = c_origem.id
+            ORDER BY n.data_publicacao DESC
+            LIMIT 100
+        """
+        cursor.execute(query)
+        resultados = cursor.fetchall()
+        
+        for row in resultados:
+            if row['Data']:
+                row['Data'] = row['Data'].strftime('%d/%m/%Y')
+                
+        cursor.close()
+        conn.close()
+        return jsonify(resultados)
+    except Exception as e:
+        return jsonify({"erro": str(e)}), 500
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)
