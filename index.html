@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mercado da Bola</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="cabecalho">
+        <h1>⚽ Mercado da Bola</h1>
+        <p>Acompanhe as últimas movimentações extraídas por IA</p>
+    </header>
+
+    <main class="container">
+        <!-- É dentro desta div que o nosso JavaScript vai injetar os cards do banco de dados -->
+        <div id="grid-transferencias" class="grid-cards">
+            
+            <!-- Exemplo estático de como o card vai ficar (apagaremos depois) -->
+            <div class="card">
+                <div class="card-jogador">
+                    <img src="https://ui-avatars.com/api/?name=Jogador+Exemplo&background=2b2b2b&color=ffffff" alt="Foto do Jogador">
+                    <h3>Nome do Atleta</h3>
+                </div>
+                <div class="card-status">
+                    <span class="badge badge-fechado">FECHADO</span>
+                    <small>Fonte: GE</small>
+                </div>
+                <div class="card-clube">
+                    <img src="https://ui-avatars.com/api/?name=Clube+Exemplo&background=2b2b2b&color=ffffff" alt="Escudo do Clube">
+                    <h3>Nome do Clube</h3>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Tag adicionada para chamar a lógica em JavaScript -->
+    <script src="app.js"></script>
+</body>
+</html>
