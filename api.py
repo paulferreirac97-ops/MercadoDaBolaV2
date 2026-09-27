@@ -3,7 +3,7 @@ from flask_cors import CORS
 import mysql.connector
 
 app = Flask(__name__)
-CORS(app) # Permite que o front-end (HTML/JS) comunique com esta API sem bloqueios de segurança
+CORS(app)
 
 @app.route('/api/transferencias', methods=['GET'])
 def obter_transferencias():
@@ -17,7 +17,7 @@ def obter_transferencias():
         )
         cursor = conexao.cursor(dictionary=True)
         
-        # Filtro exclusivo para o 365Scores com os ALIAS corrigidos para o JavaScript
+        # Query limpa, sem o WHERE, para trazer todos os dados
         query = """
             SELECT 
                 j.nome AS nome_jogador, 
@@ -30,7 +30,6 @@ def obter_transferencias():
             FROM negociacoes n
             JOIN jogadores j ON n.jogador_id = j.id
             JOIN clubes c ON n.clube_interessado_id = c.id
-            WHERE n.fonte_nome = '365Scores'
             ORDER BY n.data_publicacao DESC
         """
         cursor.execute(query)
@@ -41,6 +40,7 @@ def obter_transferencias():
         return jsonify(dados)
         
     except Exception as e:
+        # Garante que mesmo em erro, a API tenta responder em JSON
         return jsonify({"erro": str(e)}), 500
 
 if __name__ == '__main__':
